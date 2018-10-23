@@ -2,6 +2,7 @@ SELECT * FROM (
 
 -- Quotes
 SELECT
+    quote.id AS doc_id,
 	quote.date AS doc_date,
     quote.type AS doc_type, 
     status.status_name AS doc_status,
@@ -10,7 +11,8 @@ SELECT
     venue.display_string AS doc_location,
     am.display_string AS account_manager,
     method.method_name AS method,
-    quote.notes AS doc_notes
+    quote.notes AS doc_notes,
+    findoc.center_addr_string AS onsite_details
 
 FROM (
     -- Load In
@@ -63,6 +65,7 @@ LEFT JOIN st_biz_status_option AS status ON (status.id = quote.status_id)
 LEFT JOIN st_biz_shipping_method AS method ON (method.id = quote.method_id)
 LEFT JOIN st_biz_managed_resource AS am ON (am.id = quote.person_responsible_id)
 LEFT JOIN st_biz_managed_resource AS venue ON (venue.id = quote.venue_id)
+LEFT JOIN st_fin_document AS findoc ON ( quote.id = findoc.id)
 
 WHERE quote.is_deleted = 0
 
@@ -73,6 +76,7 @@ UNION ALL
 
 -- RPOs
 SELECT 
+    rpo.id AS doc_id,
     rpo.date AS doc_date,
     rpo.type AS doc_type,
     "" AS doc_status,
@@ -81,7 +85,8 @@ SELECT
     vendor.display_string AS doc_location,
     am.display_string AS account_manager,
     method.method_name AS method,
-    rpo.notes AS doc_notes
+    rpo.notes AS doc_notes,
+    "" AS onsite_details
 
 FROM (
     -- Pick Up
