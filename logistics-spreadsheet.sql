@@ -137,6 +137,36 @@ FROM
             LEFT JOIN st_biz_shipping_method AS method ON (method.id = rpo.method_id)
         WHERE
             rpo.is_deleted = 0
+        UNION
+        ALL
+        SELECT
+            sales.id AS doc_id,
+            sales.planned_start_date AS doc_date,
+            "SALE" AS doc_type,
+            status.status_name AS doc_status,
+            sales.document_number AS doc_num,
+            sales.element_name AS doc_name,
+            sales.location_id AS location_id,
+            venue.display_string AS doc_location,
+            am.display_string AS account_manager,
+            method.method_name AS method,
+            method.id AS method_id,
+            sales.notes AS doc_notes,
+            "" AS onsite_details,
+            "7bcf4f50-b5fc-11e8-b74c-0030489e8f64" AS pdf_report_type
+        FROM
+            st_prj_project_element AS sales
+            LEFT JOIN st_biz_status_option AS status ON (status.id = sales.status_id)
+            LEFT JOIN st_biz_managed_resource AS am ON (am.id = sales.person_responsible_id)
+            LEFT JOIN st_biz_managed_resource AS venue ON (venue.id = sales.venue_id)
+            LEFT JOIN st_biz_shipping_method AS method ON (method.id = sales.shipping_method_id)
+        WHERE
+            sales.def_id = '6f36f740-a565-11e3-a128-00259000d29a' -- sales
+            AND sales.is_deleted = 0
+            AND (
+                status.id != '78a1508c-aee7-11df-b8d5-00e08175e43e' -- Cancelled
+                AND status.id != '8b47ca2c-aee7-11df-b8d5-00e08175e43e'
+            ) -- Closed
     ) AS main
 WHERE
     main.method_id IN (
